@@ -25,7 +25,7 @@ if crowd_analysis_workflow:
         crowd_analysis_settings = {
             "confidence_threshold": crowd_confdidence_threshold,
             "crowd_bounding_box": crowd_bounding_box,
-            "show_heatmap": crowd_heatmap,
+            "crowd_heatmap": crowd_heatmap,
             "crowd_trace": crowd_trace,
             "crowd_label": crowd_label,
         }

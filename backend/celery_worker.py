@@ -14,7 +14,8 @@ def run_workflow(workflow_name, video_path, output_path,crowd_analysis_settings=
     elif workflow_name == 'crowd_analysis':
         if crowd_analysis_settings:  # Use settings if provided
             # Implement your crowd analysis logic with these settings
-            print(crowd_analysis_settings)
+            from crowd_analysis import crowd_analysis
+            crowd_analysis( video_path,output_path,crowd_analysis_settings)
     # Add more workflow conditions as needed
 
     print(f"Workflow {workflow_name} completed for {video_path}")

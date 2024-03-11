@@ -29,10 +29,11 @@ async def queue_job(
     # Process the workflows
     crowd_analysis_settings_dict = json.loads(crowd_analysis_settings)
     for workflow in workflows.split(","):
-        output_path = os.path.join(job_dir, f"{workflow}_output.json")
         if workflow == "crowd_analysis":
-            run_workflow(workflow, file_path, output_path, crowd_analysis_settings_dict)
-        else:
-            run_workflow(workflow, file_path, output_path)
+            
+            run_workflow.delay(workflow, file_path, job_dir, crowd_analysis_settings_dict)
+        elif workflow == "metadata":
+            output_path = os.path.join(job_dir, f"{workflow}_output.json")
+            run_workflow.delay(workflow, file_path, output_path)
 
     return JSONResponse(content={"message": "Job queued successfully"})
