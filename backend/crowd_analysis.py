@@ -4,13 +4,13 @@ import supervision as sv
 from ultralytics import YOLO
 import numpy as np
 import json
-
-def crowd_analysis(file_path, output_path, settings,):
+import matplotlib.pyplot as plt
+def crowd_analysis(file_path, output_path, settings):
     output_filename = os.path.join(output_path, "crowd_analysis_output.mp4")
      # Load the video from the temporary folder
     video = cv2.VideoCapture(file_path)
     # Load the YOLOv5 model
-    model = YOLO("models/yolov8n.pt")
+    model = YOLO("models/yolov9e.pt")
 
     heat_map_annotator = sv.HeatMapAnnotator(
         position=sv.Position.BOTTOM_CENTER,
@@ -37,7 +37,10 @@ def crowd_analysis(file_path, output_path, settings,):
     frames_generator = sv.get_video_frames_generator(
         source_path=file_path , stride=1
     )
+    crowd_counts = []  # Store crowd count for each frame
+    timestamps = []
     with sv.VideoSink(target_path=output_filename, video_info=video_info,codec="H264") as sink:
+        frame_count = 0
         for frame in frames_generator:
             result = model(
                 source=frame,
@@ -85,9 +88,21 @@ def crowd_analysis(file_path, output_path, settings,):
                 label_annotator.annotate(
                     scene=annotated_frame, detections=detections, labels=labels
                 )
-
+            crowd_count = len(detections)  
+            cv2.putText(annotated_frame, f"Crowd Count: {crowd_count}", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            crowd_counts.append(crowd_count)
+            timestamps.append(frame_count / fps)
             sink.write_frame(frame=annotated_frame)
+            frame_count += 1
     # Perform crowd analysis
-    
+    plt.figure(figsize=(10, 5))  # Adjust figure size as needed 
+    plt.plot(timestamps, crowd_counts)
+    plt.xlabel("Time (seconds)")
+    plt.ylabel("Number of People")
+    plt.title("Crowd Analysis Graph")
+    plt.grid(True) 
+    plt.tight_layout()  # Improve layout
+    plt.savefig(os.path.join(output_path, "crowd_analysis_graph.png"))
     # Return the results
     return {"message": "Crowd analysis complete"}
