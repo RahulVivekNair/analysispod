@@ -1,8 +1,19 @@
 import streamlit as st
-import requests
-st.header("Job Status")
-job_status_response = requests.get("http://localhost:8000/job_status")
-job_statuses = job_status_response.json()
+import redis
+import time
 
-for job_id, status in job_statuses.items():
-    st.write(f"Job ID: {job_id}, Status: {status}")
+redis_client = redis.Redis(host='localhost', port=6380)
+
+def display_job_status():
+    st.title("Job Status")
+    while True:  # Loop to periodically refresh
+        jobs = redis_client.keys()  # Get all job IDs
+        if jobs:
+            for job_id in jobs:
+                status = redis_client.get(job_id).decode()  
+                st.write(f"Job ID: {job_id} - Status: {status}")
+        else:
+            st.write("No jobs found.")
+        time.sleep(5)  # Adjust refresh interval
+
+display_job_status() 
