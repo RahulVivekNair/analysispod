@@ -35,5 +35,7 @@ async def queue_job(
         elif workflow == "metadata":
             output_path = os.path.join(job_dir, f"{workflow}_output.json")
             run_workflow.delay(workflow, file_path, output_path)
+        elif workflow == "fire_and_smoke_detection":
+            run_workflow.delay(workflow, file_path, job_dir)
 
     return JSONResponse(content={"message": "Job queued successfully"})
