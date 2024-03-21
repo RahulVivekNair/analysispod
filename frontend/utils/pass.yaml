@@ -1,0 +1,13 @@
+credentials:
+  usernames:
+    test:
+      email: test@test.com
+      name: Rahul
+      password: test123
+cookie:
+  expiry_days: 30
+  key: isrtanrstmiaersntmaiersn10798234niengTAI2892mn3m2978772G242 # Replace with a very secure key
+  name: app_authentication_cookie
+preauthorized:
+  emails:
+    - admin@admin.com # Optional: for initial user registration
