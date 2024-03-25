@@ -3,6 +3,9 @@ __pycache__/
 backend/__pycache__/
 backend/uploads/*
 backend/models/*
+frontend/gfpgan/*
+frontend/models/*
+frontend/temp/
 *.py[cod]
 *$py.class
 
