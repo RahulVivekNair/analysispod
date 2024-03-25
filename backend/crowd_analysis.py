@@ -40,6 +40,7 @@ def crowd_analysis(file_path, output_path, settings):
     )
     crowd_counts = []  # Store crowd count for each frame
     timestamps = []
+    frame_area = video_info.width * video_info.height
     with sv.VideoSink(target_path=output_filename, video_info=video_info,codec="H264") as sink:
         frame_count = 0
         for frame in frames_generator:
@@ -92,18 +93,39 @@ def crowd_analysis(file_path, output_path, settings):
             crowd_count = len(detections)  
             cv2.putText(annotated_frame, f"Crowd Count: {crowd_count}", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            crowd_density = crowd_count / frame_area
             crowd_counts.append(crowd_count)
             timestamps.append(frame_count / fps)
             sink.write_frame(frame=annotated_frame)
             frame_count += 1
     # Perform crowd analysis
-    plt.figure(figsize=(10, 5))  # Adjust figure size as needed 
+    plt.figure(figsize=(10, 5))
     plt.plot(timestamps, crowd_counts)
     plt.xlabel("Time (seconds)")
-    plt.ylabel("Number of People")
-    plt.title("Crowd Analysis Graph")
-    plt.grid(True) 
-    plt.tight_layout()  # Improve layout
-    plt.savefig(os.path.join(output_path, "crowd_analysis_graph.png"))
+    plt.ylabel("Crowd Count")
+    plt.title("Crowd Count Graph")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_path, "crowd_count_graph.png"))
+
+
+    peak_times = []
+    peak_threshold = np.percentile(crowd_counts, 97)  # Adjust the percentile as needed
+    for i in range(len(crowd_counts)):
+        if crowd_counts[i] >= peak_threshold:
+            peak_times.append(round(timestamps[i], 0))
+
+    # Calculate average crowd count
+    avg_crowd_count = np.mean(crowd_counts)
+    unique_peak_times = list(set(peak_times))
+    unique_peak_times.sort()
+    # Save peak times and average crowd count to JSON file
+    crowd_data = {
+        "peak_times": unique_peak_times,
+        "average_crowd_count": avg_crowd_count
+    }
+    with open(os.path.join(output_path, "crowd.json"), "w") as json_file:
+        json.dump(crowd_data, json_file)
+
     # Return the results
     return {"message": "Crowd analysis complete"}
