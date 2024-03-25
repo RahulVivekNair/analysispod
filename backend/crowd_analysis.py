@@ -10,8 +10,9 @@ def crowd_analysis(file_path, output_path, settings):
      # Load the video from the temporary folder
     video = cv2.VideoCapture(file_path)
     # Load the YOLOv5 model
-    model = YOLO("models/yolov9e.pt")
 
+    model = YOLO("models/yolov9e.pt",task='detect')# Use the GPU for inference
+    model.to("cuda")
     heat_map_annotator = sv.HeatMapAnnotator(
         position=sv.Position.BOTTOM_CENTER,
         opacity=0.5,
