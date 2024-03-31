@@ -24,7 +24,6 @@ def display_home_after_login():
     st.header("Settings")
     metadata_workflow = st.checkbox("Extract Metadata")
     crowd_analysis_workflow = st.checkbox("Crowd Analysis")
-    fire_and_smoke_detection_workflow = st.checkbox("Fire and Smoke Detection")
     anomaly_analysis_workflow = st.checkbox("Threat and anomaly analysis")
     crowd_analysis_settings = {}
     if crowd_analysis_workflow:
@@ -55,8 +54,6 @@ def display_home_after_login():
             workflows.append("metadata")
         if crowd_analysis_workflow:
             workflows.append("crowd_analysis")
-        if fire_and_smoke_detection_workflow:
-            workflows.append("fire_and_smoke_detection")
         if anomaly_analysis_workflow:
             workflows.append("anomaly_analysis")
         # Send the file and workflow settings to the backend

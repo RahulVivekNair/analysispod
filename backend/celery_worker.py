@@ -21,9 +21,6 @@ def run_workflow(workflow_name, video_path, output_path,crowd_analysis_settings=
         if crowd_analysis_settings:  # Use settings if provided
             # Implement your crowd analysis logic with these settings
             crowd_analysis( video_path,output_path,crowd_analysis_settings)
-    elif workflow_name == 'fire_and_smoke_detection':
-        # Implement your fire and smoke detection logic
-        fire_analysis(video_path, output_path)
     elif workflow_name == 'anomaly_analysis':
         anomaly_script_path = 'anomaly.py'
         result_video_path = os.path.join(output_path, 'anomaly_analysis.mp4')
