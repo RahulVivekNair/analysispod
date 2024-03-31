@@ -37,5 +37,7 @@ async def queue_job(
             run_workflow.delay(workflow, file_path, output_path)
         elif workflow == "fire_and_smoke_detection":
             run_workflow.delay(workflow, file_path, job_dir)
+        elif workflow == "anomaly_analysis":
+            run_workflow.delay(workflow, file_path, job_dir)
 
     return JSONResponse(content={"message": "Job queued successfully"})
