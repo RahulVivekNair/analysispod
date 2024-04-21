@@ -21,7 +21,7 @@ async def queue_job(
     os.makedirs(job_dir, exist_ok=True)
 
     # Save the uploaded file
-    file_path = os.path.join(job_dir, filename)
+    file_path = os.path.join(job_dir, "original.mp4")
     with open(file_path, "wb") as f:
         contents = await file.read()
         f.write(contents)

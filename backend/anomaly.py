@@ -179,6 +179,34 @@ if not os.path.isdir(result_dir):
     os.mkdir(result_dir)
 os.system('ffmpeg -i "%s" "%s"' % (save_path + '/%05d.jpg', args.output_video))
 
+# Find the indices of the 5 most drastic spikes
+spike_indices = []
+for i in range(1, len(y_pred)-1):
+    if y_pred[i] > max(y_pred[i-1], y_pred[i+1]):
+        spike_indices.append(i)
+spike_indices.sort(key=lambda x: y_pred[x], reverse=True)
+spike_indices = spike_indices[:5]
+
+# Save anomaly frames
+anomaly_frames_dir = os.path.join(result_dir, '../anomaly_frames')
+os.makedirs(anomaly_frames_dir, exist_ok=True)
+
+for idx in spike_indices:
+    src_path = os.path.join(save_path, f'{idx+16:05d}.jpg')
+    dst_path = os.path.join(anomaly_frames_dir, f'{idx+16:05d}.jpg')
+    shutil.copy(src_path, dst_path)
+
+# Create anomaly.json file
+import json
+
+anomaly_data = {
+    'anomaly_frames': [round(i / fps, 2) for i in spike_indices],
+    'anomaly_certain': any(y > 0.4 for y in y_pred)
+}
+
+with open(os.path.join(result_dir, '../anomaly.json'), 'w') as f:
+    json.dump(anomaly_data, f)
+
 x_time = [frame_num / fps for frame_num in range(len(img))]
 plt.plot(x_time, y_pred)
 plt.savefig(args.output_graph, dpi=300)
