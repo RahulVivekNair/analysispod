@@ -36,7 +36,7 @@ def get_video_fps(video_path):
     cmd = ["ffprobe", "-v", "error", "-select_streams", "v", "-of", "default=noprint_wrappers=1:nokey=1", "-show_entries", "stream=r_frame_rate", video_path]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode == 0:
-        fps_str = result.stdout.strip()
+        fps_str = result.stdout.strip().split('\n')[0]
         return eval(fps_str)
     else:
         return None
