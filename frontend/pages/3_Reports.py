@@ -1,6 +1,15 @@
 import streamlit as st
 import os
 import json
+import shutil
+
+def delete_report(job_dir):
+    if st.button(f"Delete {job_dir}"):
+        if st.warning(f"Are you sure you want to delete the report for {job_dir}?"):
+            shutil.rmtree(f"../backend/uploads/{job_dir}")
+            st.toast(f"Report for {job_dir} deleted successfully.")
+            st.rerun()
+
 def display_reports_page():
     st.title("Reports")
     st.divider()
@@ -59,7 +68,7 @@ def display_reports_page():
                     for frame in anomaly_frames:
                         st.image(f"{anomaly_frames_dir}/{frame}")
 
-               
+                delete_report(job_dir)
     else:
         st.info("No job directories found.")
 
