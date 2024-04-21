@@ -4,11 +4,13 @@ from PIL import Image
 import torch
 
 st.title("Moondream Analysis")
+st.divider()
+torch.cuda.empty_cache()
 model_id = "vikhyatk/moondream2"
 revision = "2024-04-02"
 model = AutoModelForCausalLM.from_pretrained(
-    model_id, trust_remote_code=True, revision=revision
-).half().to("cuda")
+    model_id, trust_remote_code=True, revision=revision,torch_dtype=torch.float16
+).to("cuda")
 tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
