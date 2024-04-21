@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from gfpgan import GFPGANer
 from streamlit_image_comparison import image_comparison
+import torch
 st.title("GFPGAN Face Restoration")
 
 # Setup the face restoration model
@@ -10,7 +11,6 @@ upscale = 4
 arch = 'clean'
 channel_multiplier = 2
 bg_upsampler = None
-
 model = GFPGANer(
     model_path="models/GFPGANv1.4.pth",
     upscale=upscale,
