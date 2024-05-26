@@ -73,11 +73,14 @@ name, authentication_status, username = authenticator.login('main')
 
 if authentication_status:
     # Successful authentication
-    display_home_after_login()  # Display regular home page content
+    display_home_after_login()
+    st.session_state.authentication_status = True  # Display regular home page content
     st.sidebar.button("Logout", on_click=authenticator.logout)  # Add a logout button
 elif authentication_status == False:
+    st.session_state.authentication_status = False
     st.error('Username/password is incorrect')
 elif authentication_status == None:
+    st.session_state.authentication_status = None
     st.warning('Please enter your username and password')
     # Optionally, you can hide other pages or elements here if not logged in
     # For example, you can conditionally display pages if `authentication_status` is True

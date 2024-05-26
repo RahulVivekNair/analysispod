@@ -3,6 +3,10 @@ import os
 import json
 import shutil
 
+if not st.session_state.get('authentication_status', False):
+    st.info('Please Login and try again!')
+    st.stop()
+    
 def delete_report(job_dir):
     if st.button(f"Delete {job_dir}"):
         if st.warning(f"Are you sure you want to delete the report for {job_dir}?"):

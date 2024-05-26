@@ -2,7 +2,9 @@ import streamlit as st
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from PIL import Image
 import torch
-
+if not st.session_state.get('authentication_status', False):
+    st.info('Please Login and try again!')
+    st.stop()
 st.title("Moondream Analysis")
 st.divider()
 torch.cuda.empty_cache()

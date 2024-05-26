@@ -1,18 +1,29 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from ultralytics import YOLO
 import torch
+
+# Ensure the user is authenticated
+if not st.session_state.get('authentication_status', False):
+    st.info('Please Login and try again!')
+    st.stop()
+
 # Title and Information
 st.title("Image Analysis")
 st.write("Upload an image to detect fire and weapons.")
 st.divider()
 torch.cuda.empty_cache()
+
 # Checkbox for user to select detection options
 fire = st.checkbox("Detect Fire")
 weapon = st.checkbox("Detect Weapons")
 
 # Load specific models based on user selection
+model_fire = None
+model_knife = None
+model_pistol = None
+
 if fire:
     model_fire = YOLO('yolomodels/fire.pt')
 if weapon:
@@ -22,43 +33,68 @@ if weapon:
 # File uploader
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-if uploaded_file is not None:
-    # Convert the file to an image
-    image = Image.open(uploaded_file)
-    image_array = np.array(image)
-
-    # Display the uploaded image
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+# Function to draw bounding boxes and class names on image
+def draw_boxes(image, results):
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default()
+    detected_classes = set()
     
-    # Perform detection when the button is clicked
-    if st.button("Analyze Image"):
-        if fire:
-            results_fire = model_fire(uploaded_file)
-            if len(results_fire.xyxy[0]) > 0:
-                st.write("Fire Detected")
-                # Render and display image with bounding boxes
-                image_fire = results_fire.render()[0]
-                st.image(image_fire, caption="Fire Detection", use_column_width=True)
-            else:
-                st.write("No Fire Detected")
-        
-        if weapon:
-            results_knife = model_knife(image_array)
-            results_pistol = model_pistol(image_array)
-            knife_detected = len(results_knife.xyxy[0]) > 0
-            pistol_detected = len(results_pistol.xyxy[0]) > 0
+    for result in results:
+        # Iterate through each detection
+        for box in result.boxes:
+            x1, y1, x2, y2 = box.xyxy[0].tolist()  # Extract bounding box coordinates
+            class_id = int(box.cls[0])
+            class_name = result.names[class_id]
+            detected_classes.add(class_name)
             
-            if knife_detected or pistol_detected:
-                st.write("Weapon Detected")
-                if knife_detected:
-                    st.write("Knife Detected")
-                    # Render and display image with bounding boxes for knife
-                    image_knife = results_knife.render()[0]
-                    st.image(image_knife, caption="Knife Detection", use_column_width=True)
-                if pistol_detected:
-                    st.write("Pistol Detected")
-                    # Render and display image with bounding boxes for pistol
-                    image_pistol = results_pistol.render()[0]
-                    st.image(image_pistol, caption="Pistol Detection", use_column_width=True)
-            else:
-                st.write("No Weapons Detected")
+            draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
+            draw.text((x1, y1), class_name, fill="red", font=font)
+    
+    return image, detected_classes
+
+# Process the uploaded file
+if uploaded_file is not None:
+    # Open the image file
+    image = Image.open(uploaded_file)
+    
+    # Convert to numpy array
+    img_np = np.array(image)
+    
+    # Display the uploaded image
+    st.image(image, caption='Uploaded Image.')
+    
+    # Set image size and confidence threshold
+    img_size = 640
+    conf_threshold = 0.5
+    
+    detections = []
+    
+    # Run detection models if selected
+    if fire and model_fire:
+        results_fire = model_fire.predict(source=image, imgsz=img_size, conf=conf_threshold)
+        st.write("Fire Detection Results:")
+        # Draw and display results
+        image_with_boxes, detected_classes = draw_boxes(image.copy(), results_fire)
+        st.image(image_with_boxes, caption='Detected Fire')
+        detections.extend(detected_classes)
+
+    if weapon:
+        if model_knife:
+            results_knife = model_knife.predict(source=image, imgsz=img_size, conf=conf_threshold)
+            st.write("Knife Detection Results:")
+            image_with_boxes, detected_classes = draw_boxes(image.copy(), results_knife)
+            st.image(image_with_boxes, caption='Detected Knives')
+            detections.extend(detected_classes)
+        
+        if model_pistol:
+            results_pistol = model_pistol.predict(source=image, imgsz=img_size, conf=conf_threshold)
+            st.write("Pistol Detection Results:")
+            image_with_boxes, detected_classes = draw_boxes(image.copy(), results_pistol)
+            st.image(image_with_boxes, caption='Detected Pistols')
+            detections.extend(detected_classes)
+    
+    # Display detection results
+    if detections:
+        st.write("Detected: " + ", ".join(set(detections)))
+    else:
+        st.write("No objects detected.")

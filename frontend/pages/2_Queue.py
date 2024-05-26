@@ -1,5 +1,8 @@
 import streamlit as st
 
+if not st.session_state.get('authentication_status', False):
+    st.info('Please Login and try again!')
+    st.stop()
 st.title("Job Queue")
 st.write("To view full worker dashboard, click [here](http://localhost:5555/)")
 st.components.v1.iframe("http://localhost:5555/tasks",height=900, scrolling=True)

@@ -4,6 +4,9 @@ import numpy as np
 from gfpgan import GFPGANer
 from streamlit_image_comparison import image_comparison
 import torch
+if not st.session_state.get('authentication_status', False):
+    st.info('Please Login and try again!')
+    st.stop()
 st.title("GFPGAN Face Restoration")
 
 # Setup the face restoration model

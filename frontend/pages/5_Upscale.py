@@ -8,7 +8,9 @@ from realesrgan import RealESRGANer
 from realesrgan.archs.srvgg_arch import SRVGGNetCompact
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from io import BytesIO
-
+if not st.session_state.get('authentication_status', False):
+    st.info('Please Login and try again!')
+    st.stop()
 st.title("Real-ESRGAN Image Upscaler")
 
 # Setup the upsampler
